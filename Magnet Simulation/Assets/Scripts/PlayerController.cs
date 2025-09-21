@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     public Material[] mats;
     public Detector detector;
     public string playerPole = "south";
+    private bool impulsOn = false;
+    private bool repulsOn = false;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -25,17 +27,18 @@ public class PlayerController : MonoBehaviour
 
         moveVector = new Vector3(moveX, 0f, moveZ);
 
-        //if(detector.pole != null)
-        //{
-        //    if(detector.pole == "south")
-        //    {
-        //        ActicvateSouthPole();
-        //    }
-        //    else if(detector.pole == "north")
-        //    {
-        //        ActicvateNorthPole();
-        //    }
-        //}
+        if (detector.pole != null)
+        {
+            if (detector.pole == playerPole)
+            {
+                ActicvateRepulsiveBehaviour();
+            }
+            else
+            {
+                ActicvateImpulsiveBehaviour();
+            }
+           
+        }
     }
 
     private void FixedUpdate()
@@ -69,10 +72,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //private void ActicvateSouthPole()
-    //{
-        
+    private void ActicvateImpulsiveBehaviour()
+    {
+        if(impulsOn)
+        {
+            return;
+        }
+        impulsOn = true;
+        repulsOn = false;
 
-    //}
+    }
+
+    private void ActicvateRepulsiveBehaviour()
+    {
+        if(repulsOn)
+        {
+            return;
+        }
+        repulsOn = true;
+        impulsOn = false;
+
+    }
 }
 
