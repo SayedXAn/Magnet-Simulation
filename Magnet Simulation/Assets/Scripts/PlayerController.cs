@@ -8,10 +8,14 @@ public class PlayerController : MonoBehaviour
     public float rotationSpeed = 10f;
     private Vector3 moveVector = Vector3.zero;
     public Material[] mats;
+    public Detector detector;
+    public string playerPole = "south";
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+        InvokeRepeating("ChangePolarityAndMaterial", 5f, 5f);
+        
     }
 
     void Update()
@@ -21,6 +25,17 @@ public class PlayerController : MonoBehaviour
 
         moveVector = new Vector3(moveX, 0f, moveZ);
 
+        //if(detector.pole != null)
+        //{
+        //    if(detector.pole == "south")
+        //    {
+        //        ActicvateSouthPole();
+        //    }
+        //    else if(detector.pole == "north")
+        //    {
+        //        ActicvateNorthPole();
+        //    }
+        //}
     }
 
     private void FixedUpdate()
@@ -41,12 +56,23 @@ public class PlayerController : MonoBehaviour
 
     private void ChangePolarityAndMaterial()
     {
-        GetComponent<Renderer>().material = mats[0];
+        // North pole will be represented by "Red" color and the South pole by "Blue" color
+        if (playerPole == "south")
+        {
+            playerPole = "north";
+            GetComponent<Renderer>().material = mats[1];
+        }
+        else if(playerPole == "north")
+        {
+            playerPole = "south";
+            GetComponent<Renderer>().material = mats[0];
+        }
     }
 
-    private void ActicvateSouthPole()
-    {
-        // North pole will be represented by "Red" color and the South pole by "Blue" color
-    }
+    //private void ActicvateSouthPole()
+    //{
+        
+
+    //}
 }
 
