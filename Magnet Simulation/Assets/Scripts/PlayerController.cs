@@ -4,6 +4,7 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
     public float moveSpeed = 4f;
+    public float rotationSpeed = 10f;
     private Vector3 moveVector = Vector3.zero;
     void Start()
     {
@@ -17,11 +18,18 @@ public class PlayerController : MonoBehaviour
         float moveZ = VirtualJoystick.GetAxis("Vertical");
 
         moveVector = new Vector3(moveX, 0f, moveZ);
+
     }
 
     private void FixedUpdate()
     {
         rb.linearVelocity = moveVector * moveSpeed;
+
+        if (moveVector != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveVector, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed );
+        }
     }
 
     protected void LateUpdate()
@@ -29,3 +37,4 @@ public class PlayerController : MonoBehaviour
         transform.localEulerAngles = new Vector3(0, transform.localEulerAngles.y, 0 );
     }
 }
+
