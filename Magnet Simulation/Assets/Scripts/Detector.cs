@@ -3,54 +3,58 @@ using UnityEngine;
 public class Detector : MonoBehaviour
 {
 
-    public string pole = "";
+    public string pole = "north";
     public Vector3 targetVector = Vector3.zero;
     public float forceAmount = 10f;
     private Rigidbody rb;
     public Rigidbody parentRB;
 
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         GetComponent<FixedJoint>().connectedBody = parentRB;
+        InvokeRepeating("ChangePolarityAndMaterial", 5f, 5f);
+    }
+
+    private void ChangePolarityAndMaterial()
+    {
+        //North pole will be represented by "Red" color and the South pole by "Blue" color
+        if (pole == "south")
+        {
+            pole = "north";
+            parentRB.gameObject.GetComponent<Renderer>().material = parentRB.gameObject.GetComponent<PlayerController>().mats[1];
+        }
+        else if (pole == "north")
+        {
+            pole = "south";
+            parentRB.gameObject.GetComponent<Renderer>().material = parentRB.gameObject.GetComponent<PlayerController>().mats[0];
+        }
     }
 
     private void OnTriggerStay(Collider other)
     {
         
-
-        if(other.gameObject.CompareTag("south"))
+        if(other.gameObject.CompareTag("south") || other.gameObject.CompareTag("north"))
         {
-            targetVector = other.transform.position;
-            pole = "south";            
-        }
-        if (other.gameObject.CompareTag("north"))
-        {
-            targetVector = other.transform.position;
-            pole = "north";
             Vector3 forceDirection = transform.position - other.transform.position;
-            forceDirection = forceDirection.normalized;
-            //Debug.Log("Dir: " + forceDirection);
-            //Vector3 forceVector = forceDirection / (Vector3.Distance(transform.position, other.transform.position) * Vector3.Distance(transform.position, other.transform.position)) * forceAmount;
-            Vector3 forceVector = forceDirection * forceAmount * other.GetComponent<Magnets>().forceAmount;
-            Debug.Log("forV: " + forceVector);
-            rb.AddForce(forceVector);
-        }
+            float distance = forceDirection.magnitude;
+            forceDirection.Normalize();
+            Debug.Log(distance);
+
+            float scaledForce = forceAmount / Mathf.Max(distance * distance, 0.01f);
+
+            if((pole == "north" && other.gameObject.CompareTag("south")) || (pole == "south" && other.gameObject.CompareTag("north")))
+            {
+                //Impulse
+                rb.AddForce(-forceDirection * scaledForce, ForceMode.Force);
+            }
+            else
+            {
+                rb.AddForce(forceDirection * scaledForce, ForceMode.Force);
+            }
+        }        
+
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        
-        if (other.gameObject.CompareTag("south"))
-        {
-            targetVector = Vector3.zero;
-            pole = "";
-        }
-
-        if (other.gameObject.CompareTag("north"))
-        {
-            targetVector = Vector3.zero;
-            pole = "";
-        }
-    }
 }
