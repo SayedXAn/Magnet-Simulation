@@ -11,10 +11,15 @@ public class PlayerController : MonoBehaviour
     public Material[] mats;
     public Detector detector;
     public float forceAmount = 10f;
+
+    public float jumpForce = 7f;
+    private bool isJumping = false;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+        //rb.constraints = RigidbodyConstraints.FreezePositionY;
+        //rb.constraints |= RigidbodyConstraints.FreezePositionY;
 
         GetComponent<FixedJoint>().connectedBody = detector.gameObject.GetComponent<Rigidbody>();
     }
@@ -25,12 +30,17 @@ public class PlayerController : MonoBehaviour
         float moveZ = VirtualJoystick.GetAxis("Vertical");
 
         moveVector = new Vector3(moveX, 0f, moveZ);
-
     }
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = moveVector * moveSpeed;
+        rb.linearVelocity = new Vector3(moveVector.x * moveSpeed, rb.linearVelocity.y, moveVector.z * moveSpeed);
+
+        if (!isJumping)
+        {
+            rb.position = new Vector3(rb.position.x, 10f, rb.position.z);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 10f, rb.linearVelocity.z);
+        }
 
         if (moveVector != Vector3.zero)
         {
@@ -44,6 +54,20 @@ public class PlayerController : MonoBehaviour
         transform.localEulerAngles = new Vector3(0, transform.localEulerAngles.y, 0 );
     }
 
-    
+    public void Jump()
+    {
+        if (!isJumping)
+        {
+            isJumping = true;
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("ground"))
+        {
+            isJumping = false;
+        }
+    }
 }
 
