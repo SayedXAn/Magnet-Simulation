@@ -48,7 +48,6 @@ public class Detector : MonoBehaviour
 
             if ((pole == "north" && other.gameObject.CompareTag("south")) || (pole == "south" && other.gameObject.CompareTag("north")))
             {
-
                 if(distance > minDis)
                 {
                     float scaledForce = forceAmount / Mathf.Max(distance * distance, minDis);
@@ -60,7 +59,6 @@ public class Detector : MonoBehaviour
                 {
                     rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.9f, 0f, rb.linearVelocity.z * 0.9f);
                 }
-
             }
             else
             {
