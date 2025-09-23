@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveVector = Vector3.zero;
     public Material[] mats;
     public Detector detector;
-    public bool isGrounded = false;
+    private bool isGrounded = false;
 
 
     private Vector2 startTouchPos;
@@ -35,52 +35,44 @@ public class PlayerController : MonoBehaviour
     {
         float moveX = VirtualJoystick.GetAxis("Horizontal");
         float moveZ = VirtualJoystick.GetAxis("Vertical");
-
         moveVector = new Vector3(moveX, 0f, moveZ);
 
-
-        if (Input.touchCount > 0)
+        foreach (Touch touch in Input.touches)
         {
-            Touch touch = Input.touches[0];
-
-            if (touch.phase == TouchPhase.Began && touch.position.x > Screen.width / 2f)
+            // Only check touches on the right side of the screen
+            if (touch.position.x > Screen.width / 2f)
             {
-                if (Time.time - lastTapTime <= doubleTapTime)
+                switch (touch.phase)
                 {
-                    StartCoroutine(Sprint());
+                    case TouchPhase.Began:
+                        startTouchPos = touch.position;
+
+                        // Check double tap
+                        if (Time.time - lastTapTime <= doubleTapTime)
+                        {
+                            StartCoroutine(Sprint());
+                        }
+                        lastTapTime = Time.time;
+                        break;
+
+                    case TouchPhase.Moved:
+                        Vector2 swipeVector = touch.position - startTouchPos;
+                        if (swipeVector.magnitude > minSwipeDist && swipeVector.y > Mathf.Abs(swipeVector.x))
+                        {
+                            Jump();
+                            startTouchPos = touch.position; // prevent multiple jumps in one swipe
+                        }
+                        break;
+
+                    case TouchPhase.Ended:
+                        isSwipe = false;
+                        break;
                 }
-                lastTapTime = Time.time;
-
-                startTouchPos = touch.position;
-                isSwipe = true;
             }
-
-            if (touch.phase == TouchPhase.Ended && isSwipe)
-            {
-                Vector2 endTouchPos = touch.position;
-                Vector2 swipeVector = endTouchPos - startTouchPos;
-
-                if (swipeVector.magnitude > minSwipeDist && swipeVector.y > Mathf.Abs(swipeVector.x))
-                {
-                    Jump();
-                }
-
-                isSwipe = false;
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Jump();
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            StartCoroutine(Sprint());
         }
     }
 
-    private void FixedUpdate()
+        private void FixedUpdate()
     {
         rb.linearVelocity = new Vector3(moveVector.x * moveSpeed, rb.linearVelocity.y, moveVector.z * moveSpeed);
 
@@ -134,7 +126,7 @@ public class PlayerController : MonoBehaviour
 
     private System.Collections.IEnumerator Sprint()
     {
-        if (!isSprinting) // prevent stacking
+        if (!isSprinting)
         {
             isSprinting = true;
             float originalSpeed = moveSpeed;
