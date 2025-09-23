@@ -44,7 +44,7 @@ public class Detector : MonoBehaviour
             float distance = forceDirection.magnitude;
             forceDirection.Normalize();
 
-            //Debug.Log(distance);          
+            Debug.Log(distance);          
 
             if ((pole == "north" && other.gameObject.CompareTag("south")) || (pole == "south" && other.gameObject.CompareTag("north")))
             {
@@ -57,6 +57,7 @@ public class Detector : MonoBehaviour
                 }
                 else
                 {
+
                     rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.9f, 0f, rb.linearVelocity.z * 0.9f);
                 }
             }
