@@ -5,8 +5,17 @@ public class CameraController : MonoBehaviour
     public GameObject player;
     public float distanceZ = -70f;
     public float distanceY = 20f;
-    void Update()
+    public float followSpeed = 0.2f;
+
+
+    void LateUpdate()
     {
-        transform.position = new Vector3(player.transform.position.x, player.transform.position.y + distanceY, player.transform.position.z + distanceZ);
+        Vector3 targetPos = new Vector3(
+            player.transform.position.x,
+            player.transform.position.y + distanceY,
+            player.transform.position.z + distanceZ
+        );
+
+        transform.position = targetPos;
     }
 }
