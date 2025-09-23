@@ -1,5 +1,8 @@
 using UnityEngine;
+using UnityEngine.UI;
 using Terresquall;
+using UnityEngine.SceneManagement;
+using System.Collections;
 public class PlayerController : MonoBehaviour
 {
 
@@ -23,12 +26,16 @@ public class PlayerController : MonoBehaviour
     private float lastTapTime = 0f;
     public float doubleTapTime = 0.3f;
     private bool isSprinting = false;
+
+    public Image fadeImage;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 
         GetComponent<FixedJoint>().connectedBody = detector.gameObject.GetComponent<Rigidbody>();
+
+        StartCoroutine(FadeInEffect());
     }
 
     void Update()
@@ -124,6 +131,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("end"))
+        {
+            FadeOutAndLoadScene();
+        }
+    }
+
     private System.Collections.IEnumerator Sprint()
     {
         if (!isSprinting)
@@ -137,6 +152,50 @@ public class PlayerController : MonoBehaviour
             moveSpeed = originalSpeed;
             isSprinting = false;
         }
+    }
+
+    public void FadeOutAndLoadScene()
+    {
+        StartCoroutine(FadeOutEffect());
+    }
+
+    IEnumerator FadeInEffect()
+    {
+        fadeImage.gameObject.SetActive(true);
+        Color startColor = fadeImage.color;
+        startColor.a = 1f;
+        fadeImage.color = startColor;
+
+        float timer = 0f;
+        while (timer < 1f)
+        {
+            timer += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, timer / 1f);
+            fadeImage.color = new Color(fadeImage.color.r, fadeImage.color.g, fadeImage.color.b, alpha);
+            yield return null;
+        }
+        fadeImage.color = new Color(fadeImage.color.r, fadeImage.color.g, fadeImage.color.b, 0f);
+        fadeImage.gameObject.SetActive(false);
+    }
+
+    IEnumerator FadeOutEffect()
+    {
+        fadeImage.gameObject.SetActive(true); 
+        Color startColor = fadeImage.color;
+        startColor.a = 0f; 
+        fadeImage.color = startColor;
+
+        float timer = 0f;
+        while (timer < 1f)
+        {
+            timer += Time.deltaTime;
+            float alpha = Mathf.Lerp(0f, 1f, timer / 1f);
+            fadeImage.color = new Color(fadeImage.color.r, fadeImage.color.g, fadeImage.color.b, alpha);
+            yield return null;
+        }
+        fadeImage.color = new Color(fadeImage.color.r, fadeImage.color.g, fadeImage.color.b, 1f);
+
+        SceneManager.LoadScene("MagnetSimulation");
     }
 }
 
