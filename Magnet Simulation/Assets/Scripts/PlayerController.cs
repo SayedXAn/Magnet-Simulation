@@ -147,7 +147,7 @@ public class PlayerController : MonoBehaviour
             float originalSpeed = moveSpeed;
             moveSpeed = sprintSpeed;
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.5f);
 
             moveSpeed = originalSpeed;
             isSprinting = false;
